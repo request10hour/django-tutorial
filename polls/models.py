@@ -2,7 +2,7 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
-
+from django.contrib import admin
 # Create your models here.
 
 # Question 모델을 정의
@@ -25,6 +25,17 @@ class Question(models.Model):
 	# 이 메서드를 정의하면, 객체를 표현하는데 question_text 속성의 값이 사용됩니다.
 	def __str__(self):
 		return self.question_text
+	# display() decorator를 해당 메서드( :file:`polls/models.py`에 있는)에 사용하면 다음과 같이 개선할 수 있습니다.
+	# 앞의 @는 데코레이터라고 부릅니다.
+	# 데코레이터는 함수를 수정하지 않고도 함수의 동작을 변경할 수 있게 해줍니다.
+	@admin.display(
+		# Boolean 속성을 사용하면, True일 때만 해당 메서드가 표시됩니다.
+		boolean=True,
+		# ordering 속성을 사용하면, 해당 메서드의 값으로 정렬할 수 있습니다.
+		ordering='pub_date',
+		# description 속성을 사용하면, 해당 메서드의 이름을 지정할 수 있습니다.
+		description='Published recently?',
+	)
 	# was_published_recently() 메서드는 Question 객체가 최근에 게시되었는지를 판단합니다.
 	def was_published_recently(self):
 		now = timezone.now()

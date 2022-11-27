@@ -27,12 +27,18 @@ polls.urls
 polls.views
 polls.tests
 
-templates
+polls/templates
 	- polls/
 		- index.html
 		- detail.html
 		- results.html
 
-static
+polls/static
 	- polls/
 		- style.css
+
+mysite.settings
+	- TEMPLATES / DIRS
+polls/templates
+	- admin/
+    	- base_site.html

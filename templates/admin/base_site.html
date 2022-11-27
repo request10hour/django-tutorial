@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+
+{# block문 : Django가 html을 렌더링할 때 쓰이는 문법으로 #}
+{# html 기본 base를 상속받아 렌더링할 때 특정 부분에 #}
+{# 해당하는 부분만 상속받은 자식 html 내에서  원하는 양식으로 변경하고 싶을 때 쓰이는 문법 #}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Polls Administration</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
