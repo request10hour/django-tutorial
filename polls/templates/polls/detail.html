@@ -1,0 +1,22 @@
+{# form이 submit되면, form의 action에 지정된 url로 form의 데이터가 전송됨 #}
+{# form의 method는 get, post 두 가지가 있음 #}
+{# get은 url에 데이터를 붙여서 전송 #}
+{# post는 form의 데이터를 숨겨서 전송 #}
+<form action="{% url 'polls:vote' question.id %}" method="post">
+{# csrf_token은 보안을 위한 것으로, 반드시 form에 넣어야 함 #}
+{# csrf_token은 form을 제출할 때마다 새로운 값을 생성함 #}
+{# csrf의 전체 이름은 cross-site request forgery임 #}
+{# 사이트 간 요청 위조 #}
+{% csrf_token %}
+<fieldset>
+	<legend><h1>{{ question.question_text }}</h1></legend>
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	{% for choice in question.choice_set.all %}
+		<input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+		<label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label>
+		<br>
+	{% endfor %}
+</fieldset>
+{# value 속성을 지정하면, 해당 버튼의 name과 value가 전송됨 #}
+<input type="submit" value="Vote">
+</form>

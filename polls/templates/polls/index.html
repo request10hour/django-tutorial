@@ -1,0 +1,14 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+{% if latest_question_list %}
+	<ul>
+	{# latest_question_list는 Question 모델의 객체 목록을 가지고 있다. #}
+	{# 각 객체는 question_text 속성을 가지고 있다. #}
+	{% for question in latest_question_list %}
+		<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a>
+		</li>
+	{% endfor %}
+{% else %}
+	{# latest_question_list가 비어있는 경우 #}
+	<p>No polls are available.</p>
+{% endif %}

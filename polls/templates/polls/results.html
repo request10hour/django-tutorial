@@ -1,0 +1,12 @@
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+{% for choice in question.choice_set.all %}
+{# pluralize는 장고 템플릿 필터로, 첫 번째 인자의 개수에 따라 두 번째 인자를 달리 표시한다. #}
+{# 예를 들어, 1개의 투표가 있다면, "1 vote"를 표시하고, 2개의 투표가 있다면, "2 votes"를 표시한다. #}
+{# 장고 템플릿 필터에 대한 자세한 내용은 https://docs.djangoproject.com/en/1.11/ref/templates/builtins/#pluralize를 참고하자. #}
+	<li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'polls:detail' question.id %}">Vote again?</a>

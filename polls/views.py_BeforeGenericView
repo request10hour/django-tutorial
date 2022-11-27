@@ -1,0 +1,111 @@
+from django.shortcuts import render
+
+# Create your views here.
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+# from django.http import Http404
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+
+from .models import Choice, Question
+
+# def index(request):
+# 	latest_question_list = Question.objects.order_by('-pub_date')[:5]
+# 	template = loader.get_template('polls/index.html')
+# 	context = {
+# 		'latest_question_list': latest_question_list,
+# 	}
+# 	return HttpResponse(template.render(context, request))
+
+# request 객체는 사용자가 보낸 데이터를 포함하고 있다.
+def index(request):
+	# Question 모델에서 최근에 발행된 질문 5개를 가져온다.
+	# -pub_date는 pub_date 필드를 내림차순으로 정렬한다는 의미이다.
+	# 오름차순으로 정렬하려면 pub_date로 지정하면 된다.
+	latest_question_list = Question.objects.order_by('-pub_date')[:5]
+	context = {'latest_question_list': latest_question_list}
+	# render() 함수는 템플릿을 사용하여 HttpResponse 객체를 반환한다.
+	# request 객체는 템플릿에 전달되어 템플릿 시스템이 사용자에게 보여줄 콘텐츠를 생성하는 데 사용된다.
+	# 템플릿 이름은 'polls/index.html'이다.
+	# context는 템플릿 시스템에 전달되는 딕셔너리이다.
+	# 템플릿 시스템은 context 딕셔너리에 있는 키를 찾아서 값을 가져와서 템플릿에 삽입한다.
+	return render(request, 'polls/index.html', context)
+
+# def detail(request, question_id):
+# 	try:
+# 		question = Question.objects.get(pk=question_id)
+# 	except Question.DoesNotExist:
+# 		raise Http404("Question does not exist")
+# 	return render(request, 'polls/detail.html', {'question': question})
+
+# question_id를 받아서 해당 질문의 투표 페이지를 보여준다.
+# question_id는 URLconf에서 정규표현식으로 추출한 값이다.
+def detail(request, question_id):
+	# get_object_or_404() 함수는 Django 모델에서 객체를 가져오는 데 사용되는 헬퍼 함수이다.
+	# 이 함수는 모델 클래스를 첫 번째 인수로 받고, 키워드 인수를 사용하여 필터링할 필드를 지정한다.
+	# 이 함수는 객체가 존재하지 않으면 Http404 예외를 발생시킨다.
+	# pk는 primary key의 약자이다. pk는 모델에서 기본 키를 의미한다. 기본 키는 각 객체를 구분하는 값이다.
+	question = get_object_or_404(Question, pk=question_id)
+	# render() 함수는 템플릿을 사용하여 HttpResponse 객체를 반환한다.
+	return render(request, 'polls/detail.html', {'question': question})
+
+# result 메서드는 템플릿을 사용하지 않고 HttpResponse 객체를 반환한다.
+# def results(request, question_id):
+# 	response = "You're looking at the results of question %s."
+# 	# HttpResponse는 문자열을 반환하는 간단한 함수이다.
+# 	# % 연산자를 사용하여 question_id를 문자열에 삽입한다.
+# 	return HttpResponse(response % question_id)
+
+# question_id를 받아서 해당 질문의 결과 페이지를 보여준다.
+# question_id는 URLconf에서 정규표현식으로 추출한 값이다.
+def results(request, question_id):
+	question = get_object_or_404(Question, pk=question_id)
+	return render(request, 'polls/results.html', {'question': question})
+
+# vote 메서드는 POST 요청만 처리하므로, GET 요청에 대해서는 404 에러를 발생시킵니다.
+# 이는 장고의 보안 기능으로, 사용자가 URL을 직접 입력해서 투표를 두 번 할 수 없도록 합니다.
+# html 폼에서 POST 방식으로 요청을 보내기 때문에, 이 함수는 POST 방식으로 요청이 들어온 경우에만 동작합니다.
+def vote(request, question_id):
+	# get_object_or_404()는 Question 모델에서 pk(primary key)가 question_id인 레코드를 가져옵니다.
+	# 만약 해당 레코드가 없으면 Http404 에러를 발생시킵니다.
+	question = get_object_or_404(Question, pk=question_id)
+	# try로 시작해서 except로 끝나는 코드 블록은
+	# 선택된 Choice가 POST 데이터에 존재하지 않는 경우에
+	# 발생하는 KeyError를 잡아냅니다.
+	try:
+		# selected_choice는 Choice 모델의 객체
+		# choice set은 Choice 모델의 객체들의 집합
+		# request.POST['choice']는 선택된 Choice의 pk
+		# request.POST는 사용자가 POST 방식으로 보낸 데이터를 담고 있는 객체
+		selected_choice = question.choice_set.get(pk=request.POST['choice'])
+	# KeyError가 발생하면 except로 넘어가고
+	# except로 넘어가면 다시 detail.html로 돌아감
+	# DoesNotExist는 get() 메서드가 해당 레코드가 없을 때 발생하는 예외
+	except (KeyError, Choice.DoesNotExist):
+		# render() 함수는 템플릿을 렌더링하고
+		# HttpResponse 객체를 반환합니다.
+		# render() 함수는 세 개의 인자를 받습니다.
+		# request: 사용자의 요청
+		# 'polls/detail.html': 템플릿의 위치
+		# {'question': question, 'error_message': "You didn't select a choice.",}: 템플릿에 전달할 데이터
+		return render(request, 'polls/detail.html', {
+			'question': question,
+			'error_message': "You didn't select a choice.",
+		})
+	# except로 넘어가지 않으면
+	# selected_choice.votes를 1 증가시키고
+	# selected_choice.save()를 호출하여
+	# 데이터베이스에 변경사항을 저장
+	else:
+		selected_choice.votes += 1
+		selected_choice.save()
+		# HttpResponseRedirect는 사용자가
+		# POST 방식으로 데이터를 보낸 후에
+		# 데이터를 보낸 주소로 다시 보내는 클래스
+		# reverse()는 URL 패턴의 이름을 받아서
+		# URL 패턴에 해당하는 URL을 반환하는 함수
+		# reverse()의 첫 번째 인자는 URL 패턴의 이름
+		# 두 번째 인자는 URL 패턴에 해당하는 뷰 함수에 전달할 인자
+		# reverse()는 URL 패턴에 해당하는 뷰 함수에 전달할 인자를
+		# 딕셔너리 형태로 받음
+		return HttpResponseRedirect(reverse('polls:results', args=(question_id,)))
